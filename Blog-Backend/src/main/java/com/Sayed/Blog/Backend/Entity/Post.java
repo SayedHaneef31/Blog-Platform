@@ -2,6 +2,7 @@ package com.Sayed.Blog.Backend.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.w3c.dom.Text;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Getter@Setter
 @NoArgsConstructor@AllArgsConstructor
 @Builder
-@Table(name = "post")
+@Table(name = "posts")
 public class Post
 {
     @Id
@@ -24,20 +25,54 @@ public class Post
     private String title;
 
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
+
+    @ManyToOne(fetch = FetchType.LAZY)      //many to one as in many post can be written by the single user
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",nullable = false)
     private Category category;
 
+    @ManyToMany
+    @JoinTable(
+           name="post_tags",
+           joinColumns = @JoinColumn(name="post_id"),
+           inverseJoinColumns = @JoinColumn(name="tag_id")
+    )
     private Set<Tag> tags=new HashSet<>();
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private PostStatus postStatus;
 
+    @Column(nullable = false)
     private Integer readingTime;
 
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreated()
+    {
+        LocalDateTime now=LocalDateTime.now();
+        createdAt=now;
+        updatedAt=now;
+    }
+
+    @PreUpdate
+    protected void onUpdate()
+    {
+        updatedAt=LocalDateTime.now();
+    }
+
 
 }

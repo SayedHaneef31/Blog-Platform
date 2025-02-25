@@ -1,20 +1,30 @@
 package com.Sayed.Blog.Backend.Entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name="tag")
+@Table(name="tags")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Tag
 {
-    @Column(nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
     private String name;
+
+    @ManyToMany(mappedBy = "tags")
+    private Set<Post> posts=new HashSet<>();
 
 
 
