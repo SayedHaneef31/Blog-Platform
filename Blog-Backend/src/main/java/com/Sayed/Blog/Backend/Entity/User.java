@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Getter@Setter
-@NoArgsConstructor@AllArgsConstructor@Builder
+@NoArgsConstructor
+@AllArgsConstructor@Builder
 @Table(name = "users")
 public class User
 {
@@ -29,6 +29,54 @@ public class User
     @Column(nullable = false)
     private String name;
 
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL,orphanRemoval = true)                       //one to many as in one user can write many post
     private List<Post> posts=new ArrayList<>();

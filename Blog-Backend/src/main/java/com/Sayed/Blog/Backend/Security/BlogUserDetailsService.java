@@ -1,0 +1,24 @@
+package com.Sayed.Blog.Backend.Security;
+
+import com.Sayed.Blog.Backend.Entity.User;
+import com.Sayed.Blog.Backend.Repository.UserRepo;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+@RequiredArgsConstructor
+public class BlogUserDetailsService implements UserDetailsService
+{
+
+    private final UserRepo userRepo;
+
+    public BlogUserDetailsService(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String emial) throws UsernameNotFoundException {
+        User user=userRepo.findUserByEmail(emial).orElseThrow(()-> new UsernameNotFoundException("User not found with email="+ emial));
+        return new BlogUserDetails(user);
+    }
+}

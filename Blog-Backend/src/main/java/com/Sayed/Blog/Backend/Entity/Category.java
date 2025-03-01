@@ -9,7 +9,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name= "categories")
-@Getter@Setter@AllArgsConstructor@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Category {
 

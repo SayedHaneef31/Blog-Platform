@@ -10,8 +10,10 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Getter@Setter
-@NoArgsConstructor@AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Table(name = "posts")
 public class Post
