@@ -4,6 +4,7 @@ import com.Sayed.Blog.Backend.Entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
+//@RequiredArgsConstructor
 public class BlogUserDetails implements UserDetails
 {
 

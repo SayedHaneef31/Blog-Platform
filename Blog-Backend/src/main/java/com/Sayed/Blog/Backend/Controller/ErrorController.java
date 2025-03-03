@@ -8,13 +8,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ControllerAdvice // Global Exception Handling: It allows you to handle exceptions across the whole application in one place.
                   //Applies to All Controllers: It acts like an "Interceptor" for handling exceptions globally.
-@Slf4j            //enables Logging: It provides a log object without manually defining it.
+//@Slf4j          //enables Logging: It provides a log object without manually defining it.
 public class ErrorController
 {
+
+    //Manually setting up log
+    private static final Logger log = LoggerFactory.getLogger(ErrorController.class);
+
     // Handling BaseException
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
@@ -31,7 +36,7 @@ public class ErrorController
 
     //Handling BadCredentialsException
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<String> hanndleBadCredentialsException(BadCredentialsException ex)
+    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex)
     {
         log.error("BadCredentialsException occurred: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());

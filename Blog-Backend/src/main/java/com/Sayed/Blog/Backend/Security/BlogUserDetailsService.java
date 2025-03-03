@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class BlogUserDetailsService implements UserDetailsService
 {
 
@@ -17,8 +17,8 @@ public class BlogUserDetailsService implements UserDetailsService
     }
 
     @Override
-    public UserDetails loadUserByUsername(String emial) throws UsernameNotFoundException {
-        User user=userRepo.findUserByEmail(emial).orElseThrow(()-> new UsernameNotFoundException("User not found with email="+ emial));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user=userRepo.findUserByEmail(email).orElseThrow(()-> new UsernameNotFoundException("User not found with email="+ email));
         return new BlogUserDetails(user);
     }
 }
