@@ -22,4 +22,38 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Post> posts=new ArrayList<>();
+
+    public Category(UUID id, String name, List<Post> posts) {
+        this.id = id;
+        this.name = name;
+        this.posts = posts;
+    }
+
+    public Category() {
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
 }
+

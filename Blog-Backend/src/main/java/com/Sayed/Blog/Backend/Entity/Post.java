@@ -74,5 +74,99 @@ public class Post
         updatedAt=LocalDateTime.now();
     }
 
+    public Post(User author, Category category, String content, LocalDateTime createdAt, UUID id, PostStatus postStatus, Integer readingTime, Set<Tag> tags, String title, LocalDateTime updatedAt) {
+        this.author = author;
+        this.category = category;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.id = id;
+        this.postStatus = postStatus;
+        this.readingTime = readingTime;
+        this.tags = tags;
+        this.title = title;
+        this.updatedAt = updatedAt;
+    }
 
+    public Post() {
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public PostStatus getPostStatus() {
+        return postStatus;
+    }
+
+    public void setPostStatus(PostStatus postStatus) {
+        this.postStatus = postStatus;
+    }
+
+    public Integer getReadingTime() {
+        return readingTime;
+    }
+
+    public void setReadingTime(Integer readingTime) {
+        this.readingTime = readingTime;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
