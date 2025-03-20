@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 //@RequiredArgsConstructor     // would automatically generate the constructor if any variable declared with final keyword....Alternative to @Autowired
-//@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping(path = "/api/v1/categories")
 public class CategoryController {
