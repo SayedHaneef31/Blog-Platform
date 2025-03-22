@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiService } from '../services/apiService';
+import { AuthUser, apiService } from '../services/apiService';
 import { useAuth } from '../components/AuthContext';
 
 const LoginPage = () => {
@@ -18,7 +18,9 @@ const LoginPage = () => {
 
     try {
       const response = await apiService.login({ email, password });
-      login(response);
+     // console.log(response)
+      const { token } = response;
+      login(token);
       navigate('/');
     } catch (err: any) {
       setError(err.message || 'Failed to login. Please try again.');
@@ -91,6 +93,18 @@ const LoginPage = () => {
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/register')}
+                className="text-indigo-600 hover:underline"
+              >
+                Sign up
+              </button>
+            </p>
           </div>
         </form>
       </div>

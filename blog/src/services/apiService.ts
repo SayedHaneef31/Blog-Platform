@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig, AxiosError } from 'axios';
 
+import  AuthUser  from "../components/AuthContext";
 // Types
 export interface LoginRequest {
   email: string;
@@ -15,6 +16,14 @@ export interface Category {
   id: string;
   name: string;
   postCount?: number;
+}
+
+
+
+export interface AuthUser{
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface Tag {
@@ -139,6 +148,21 @@ class ApiService {
     tagId?: string;
   }): Promise<Post[]> {
     const response: AxiosResponse<Post[]> = await this.api.get('/posts', { params });
+    return response.data;
+  }
+
+  public setToken(token: string | null): void {
+    if (token) {
+      this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
+    } else {
+      delete this.api.defaults.headers.common['Authorization'];
+      localStorage.removeItem('token');
+    }
+  }
+
+  public async getUserProfile(): Promise<AuthUser> {
+    const response: AxiosResponse<AuthUser> = await this.api.get('/auth/profile');
     return response.data;
   }
 

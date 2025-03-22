@@ -1,15 +1,29 @@
 package com.Sayed.Blog.Backend.Configuration;
 
 
+import com.Sayed.Blog.Backend.Entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -19,18 +33,56 @@ import java.io.IOException;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/categories/**").permitAll() // Allow public access
-                        .anyRequest().authenticated()
+                        //.requestMatchers( "register","login").permitAll()  //jaha jaha register ya login use ho raha hoga usko authentication ki zaroorat nahi
+                        .requestMatchers( HttpMethod.GET,"/api/v1/posts/**", "/api/v1/categories/**").permitAll() // Allow homepage & blog content
+                        .requestMatchers("/api/v1/auth/**").permitAll() // Allow authentication APIs (login/register)
+                        .requestMatchers("/api/v1/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/tags/**").permitAll() // Allow public access
+                        .anyRequest().authenticated() // Require authentication for other actions
+
                 )
-                .formLogin().disable() // Disable default login page redirect
-                .httpBasic(); // Enable basic authentication if needed
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);   //It will tell spring to adda a jwtAutentication filter berfore UsernamePasswordAuthenticationFilter filter
+//                .formLogin().disable() // Disable default login page redirect
+//                .httpBasic().disable(); // Enable basic authentication if needed
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider()
+    {
+        DaoAuthenticationProvider daoAuthenticationProvider=new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
+
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder()
+    {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception
+    {
+        return authenticationConfiguration.getAuthenticationManager();
+
     }
 
 }

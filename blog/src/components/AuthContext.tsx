@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { apiService } from '../services/apiService';
 
+
 interface AuthUser {
   id: string;
   name: string;
@@ -10,7 +11,7 @@ interface AuthUser {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: AuthUser | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (token: string) => Promise<void>;
   logout: () => void;
   token: string | null;
 }
@@ -19,12 +20,13 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  
 
   // Initialize auth state from token
   useEffect(() => {
@@ -32,9 +34,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
         try {
-          // TODO: Add endpoint to fetch user profile
-          // const userProfile = await apiService.getUserProfile();
-          // setUser(userProfile);
+          apiService.setToken(storedToken); // Ensure apiService uses the latest token
+          const userProfile = await apiService.getUserProfile(); // Fetch user data
+          setUser(userProfile);
           setIsAuthenticated(true);
           setToken(storedToken);
         } catch (error) {
@@ -50,29 +52,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      const response = await apiService.login({ email, password });
+  const [authState, setAuthState] = useState<AuthContextType>({
+    isAuthenticated: false,
+    user: null,
+    token: null,
+    login: () => Promise.resolve(), // Placeholder, will be updated below
+    logout: () => {},
+  });
+
+  const login = async (token: string): Promise<void> => {
+    localStorage.setItem('token', token); // Save token for persistence
+    setAuthState(prevState => ({
+      ...prevState,
+      isAuthenticated: true,
+      token,
+    }));
+  };
+  // const login = useCallback(async (email: string, password: string) => {
+  //   try {
+  //     const response = await apiService.login({ email, password });
       
-      localStorage.setItem('token', response.token);
-      setToken(response.token);
-      setIsAuthenticated(true);
+  //     localStorage.setItem('token', response.token);
+  //     setToken(response.token);
+  //     setIsAuthenticated(true);
 
-      // TODO: Add endpoint to fetch user profile after login
-      // const userProfile = await apiService.getUserProfile();
-      // setUser(userProfile);
-    } catch (error) {
-      throw error;
-    }
-  }, []);
+  //     // TODO: Add endpoint to fetch user profile after login
+  //     // const userProfile = await apiService.getUserProfile();
+  //     // setUser(userProfile);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    setUser(null);
+  const logout = () => {
+    localStorage.removeItem("token");
     setToken(null);
-    apiService.logout(); // This clears the token from apiService
-  }, []);
+    setUser(null);
+  };
 
   // Update apiService token when it changes
   useEffect(() => {
@@ -92,10 +108,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, token }}>
+    {children}
+  </AuthContext.Provider>
+);
 };
 
 export const useAuth = (): AuthContextType => {
