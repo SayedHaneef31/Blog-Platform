@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState,  useEffect } from 'react';
 import { apiService } from '../services/apiService';
 
 
-interface AuthUser {
+export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -28,30 +29,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   
 
-  // Initialize auth state from token
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        try {
-          apiService.setToken(storedToken); // Ensure apiService uses the latest token
-          const userProfile = await apiService.getUserProfile(); // Fetch user data
-          setUser(userProfile);
-          setIsAuthenticated(true);
-          setToken(storedToken);
-        } catch (error) {
-          // If token is invalid, clear authentication
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-          setUser(null);
-          setToken(null);
-        }
-      }
-    };
-
-    initializeAuth();
-  }, []);
-
   const [authState, setAuthState] = useState<AuthContextType>({
     isAuthenticated: false,
     user: null,
@@ -61,33 +38,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   const login = async (token: string): Promise<void> => {
+
+    console.log("Inside Login in AuthContext in react");
+    
     localStorage.setItem('token', token); // Save token for persistence
-    setAuthState(prevState => ({
+    setToken(token);
+    console.log("Inside Login in AuthContext in react with token=",token);
+    try{
+      apiService.setToken(token); // Ensure API service has the latest token
+      console.log("Fetching user profile...");
+      const userProfile = await apiService.getUserProfile();
+      console.log("User profile fetched:", userProfile);
+      setUser(userProfile);
+      setIsAuthenticated(true);  // Ensure isAuthenticated is updated
+      console.log("Login successful, isAuthenticated:", isAuthenticated);
+      setAuthState(prevState => ({
       ...prevState,
       isAuthenticated: true,
       token,
     }));
+    } catch (error) {
+    console.error("Error fetching user profile:", error);
+    setIsAuthenticated(false);
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem("token");
+    logout(); // Ensure cleanup if profile fetch fails
+  }
   };
-  // const login = useCallback(async (email: string, password: string) => {
-  //   try {
-  //     const response = await apiService.login({ email, password });
-      
-  //     localStorage.setItem('token', response.token);
-  //     setToken(response.token);
-  //     setIsAuthenticated(true);
 
-  //     // TODO: Add endpoint to fetch user profile after login
-  //     // const userProfile = await apiService.getUserProfile();
-  //     // setUser(userProfile);
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }, []);
+   // Initialize auth state from token
+   useEffect(() => {
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        try {
+          apiService.setToken(storedToken); // Ensure apiService uses the latest token
+          const userProfile = await apiService.getUserProfile(); // Fetch user data
+          setUser(userProfile);
+          setIsAuthenticated(true);
+          setToken(storedToken);
+        } catch (error) {
+                console.error("Invalid token, logging out...");
+                localStorage.removeItem("token");
+                setToken(null);
+                setUser(null);
+                setIsAuthenticated(false);
+        }
+      }
+    };
+    initializeAuth();
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
+    setIsAuthenticated(false); // Ensure state is reset
   };
 
   // Update apiService token when it changes

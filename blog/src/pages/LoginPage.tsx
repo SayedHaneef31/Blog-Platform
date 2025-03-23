@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthUser, apiService } from '../services/apiService';
+
+import { AuthUser } from '../components/AuthContext'; // Import the interface from the correct file
+import { apiService } from '../services/apiService'; // Keep this for API service
 import { useAuth } from '../components/AuthContext';
 
 const LoginPage = () => {

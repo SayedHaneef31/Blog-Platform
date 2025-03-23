@@ -1,6 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig, AxiosError } from 'axios';
 
-import  AuthUser  from "../components/AuthContext";
+import { AuthUser } from "../components/AuthContext";
+
+import defaultavatar from '../assets/defaultavatar.jpg';
+
 // Types
 export interface LoginRequest {
   email: string;
@@ -19,12 +22,6 @@ export interface Category {
 }
 
 
-
-export interface AuthUser{
-  id: string;
-  name: string;
-  email: string;
-}
 
 export interface Tag {
   id: string;
@@ -162,10 +159,20 @@ class ApiService {
   }
 
   public async getUserProfile(): Promise<AuthUser> {
-    const response: AxiosResponse<AuthUser> = await this.api.get('/auth/profile');
-    return response.data;
-  }
-
+    try {
+        const response = await this.api.get("/user/profile");
+        const user: AuthUser = {
+            id: response.data.id,
+            name: response.data.name,
+            email: response.data.email,
+            avatar: response.data.avatar || defaultavatar,
+        };
+        return user;
+    } catch (error) {
+        console.error("Error in getUserProfile:", error);
+        throw error; // Re-throw the error to be caught in AuthContext
+    }
+}
   public async getPost(id: string): Promise<Post> {
     const response: AxiosResponse<Post> = await this.api.get(`/posts/${id}`);
     return response.data;

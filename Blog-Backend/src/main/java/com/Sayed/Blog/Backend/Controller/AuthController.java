@@ -7,6 +7,9 @@ import com.Sayed.Blog.Backend.Repository.UserRepo;
 import com.Sayed.Blog.Backend.Security.BlogUserDetails;
 import com.Sayed.Blog.Backend.Service.JwtService;
 import com.Sayed.Blog.Backend.Service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +43,8 @@ public class AuthController
     @Autowired
     private AuthenticationManager authenticationManager;
 
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @GetMapping("/get-users")
     public List<User> listAllUsers()
@@ -106,5 +112,7 @@ public class AuthController
 
 
     }
+
+
 
 }

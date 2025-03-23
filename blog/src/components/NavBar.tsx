@@ -16,24 +16,21 @@ import {
   DropdownItem,
 } from '@nextui-org/react';
 import { Plus, BookOpen, Edit3, LogOut, User, BookDashed } from 'lucide-react';
+import { useAuth } from "../components/AuthContext";  // Import Auth Context
+import { AuthUser } from "../components/AuthContext";  // Import AuthUser type
 
 interface NavBarProps {
   isAuthenticated: boolean;
-  userProfile?: {
-    name: string;
-    avatar?: string;
-  };
+  userProfile?: AuthUser;  // Use AuthUser instead of redefining
   onLogout: () => void;
 }
 
-const NavBar: React.FC<NavBarProps> = ({
-  isAuthenticated,
-  userProfile,
-  onLogout,
-}) => {
+const NavBar: React.FC = () =>{
+  
+  const { isAuthenticated, user, logout } = useAuth(); // Get auth state
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
+  console.log("Navbar rendered, isAuthenticated:", isAuthenticated, "user:", user);
   const menuItems = [
     { name: 'Home', path: '/' },
     { name: 'Categories', path: '/categories' },
@@ -112,8 +109,8 @@ const NavBar: React.FC<NavBarProps> = ({
                     isBordered
                     as="button"
                     className="transition-transform"
-                    src={userProfile?.avatar}
-                    name={userProfile?.name}
+                    src={user?.avatar}
+                    name={user?.name}
                   />
                 </DropdownTrigger>
                 <DropdownMenu aria-label="User menu">                
@@ -128,7 +125,7 @@ const NavBar: React.FC<NavBarProps> = ({
                     startContent={<LogOut size={16} />}
                     className="text-danger"
                     color="danger"
-                    onPress={onLogout}
+                    onPress={logout}
                   >
                     Log Out
                   </DropdownItem>
