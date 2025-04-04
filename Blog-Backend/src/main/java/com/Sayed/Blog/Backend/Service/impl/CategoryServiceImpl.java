@@ -28,9 +28,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public Category saveCategory(Category category) {
-        //LocalDateTime now = LocalDateTime.now();
+        if (categoryRepo.existsByName(category.getName())) {
+            throw new IllegalArgumentException("Category with name '" + category.getName() + "' already exists");
+        }
         return categoryRepo.save(category);
-
     }
 
     @Override

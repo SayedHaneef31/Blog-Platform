@@ -38,7 +38,7 @@ public class TagController
     @PostMapping
     public ResponseEntity<?> createTag(@Valid @RequestBody CreateTagDto createTagDto) {
 
-        // TODO if tag already prent then it shoulld show  a popup
+        // TODO (if tag already prent then it shoulld show  a popup)
         try {
             Tag tag = new Tag();
             tag.setName(createTagDto.getName());

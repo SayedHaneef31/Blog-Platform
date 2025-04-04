@@ -5,10 +5,13 @@ import com.Sayed.Blog.Backend.Repository.CategoryRepo;
 import com.Sayed.Blog.Backend.Service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,10 +38,17 @@ public class CategoryController {
 
     //CREATE CATEGORY
     @PostMapping
-    public ResponseEntity<Category> createCategory(@RequestBody Category category)
+    public ResponseEntity<?> createCategory(@RequestBody Category category)
     {
-        return ResponseEntity.ok(categoryService.saveCategory(category));
-
+        // TODO (if category already prent then it should show  a popup--- Handle it in frontend)
+        try {
+            Category savedCategory = categoryService.saveCategory(category);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -52,19 +62,19 @@ public class CategoryController {
     }
 
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<?> updateCategory(@PathVariable UUID id,@RequestBody Category category)
-//    {
-//        Optional<Category> optionalCategory = categoryRepo.findById(id);
-//
-//        if (optionalCategory.isPresent()) {
-//            Category existingCategory = optionalCategory.get();
-//            existingCategory.setName(updatedCategory.getName());  // Directly set the name
-//            categoryRepository.save(existingCategory);  // Save to DB
-//            return ResponseEntity.ok(existingCategory);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable UUID id,@RequestBody Category category)
+    {
+        Optional<Category> optionalCategory = categoryRepo.findById(id);
+
+        if (optionalCategory.isPresent()) {
+            Category existingCategory = optionalCategory.get();
+            existingCategory.setName(category.getName());  // Directly set the name
+            categoryRepo.save(existingCategory);  // Save to DB
+            return ResponseEntity.ok(existingCategory);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
 }

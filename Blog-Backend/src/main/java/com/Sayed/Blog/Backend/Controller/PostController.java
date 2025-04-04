@@ -34,7 +34,7 @@ public class PostController {
     private final UserRepo userRepo;
 
     public PostController(PostService postService, CategoryService categoryService, TagService tagService, UserService userService, UserRepo userRepo) {
-        System.out.println("Inside post controller");
+        //System.out.println("Inside post controller");
         this.postService = postService;
         this.categoryService = categoryService;
         this.tagService = tagService;

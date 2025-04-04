@@ -21,6 +21,7 @@ import {
 } from "@nextui-org/react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { apiService, Category } from "../services/apiService";
+import toast, { Toaster } from 'react-hot-toast';
 
 interface CategoriesPageProps {
   isAuthenticated: boolean;
@@ -64,17 +65,34 @@ const CategoriesPage: React.FC<CategoriesPageProps> = ({ isAuthenticated }) => {
           editingCategory.id,
           newCategoryName.trim()
         );
+        toast.success('Category updated successfully!');
       } else {
         await apiService.createCategory(newCategoryName.trim());
+        toast.success('Category created successfully!');
       }
       await fetchCategories();
       handleModalClose();
-    } catch (err) {
-      setError(
-        `Failed to ${
-          editingCategory ? "update" : "create"
-        } category. Please try again.`
-      );
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        toast.error("Category name already exists!", {
+          duration: 4000,
+          position: 'top-center',
+          style: {
+            background: '#FEE2E2',
+            color: '#DC2626',
+            padding: '16px',
+            borderRadius: '8px',
+            fontWeight: 'bold'
+          },
+          icon: '⚠️',
+        });
+      } else {
+        setError(
+          `Failed to ${
+            editingCategory ? "update" : "create"
+          } category. Please try again.`
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -93,6 +111,7 @@ const CategoriesPage: React.FC<CategoriesPageProps> = ({ isAuthenticated }) => {
       setLoading(true);
       await apiService.deleteCategory(category.id);
       await fetchCategories();
+      toast.success('Category deleted successfully!');
     } catch (err) {
       setError("Failed to delete category. Please try again.");
     } finally {
@@ -120,6 +139,7 @@ const CategoriesPage: React.FC<CategoriesPageProps> = ({ isAuthenticated }) => {
 
   return (
     <div className="max-w-4xl mx-auto px-4">
+      <Toaster />
       <Card>
         <CardHeader className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Categories</h1>
