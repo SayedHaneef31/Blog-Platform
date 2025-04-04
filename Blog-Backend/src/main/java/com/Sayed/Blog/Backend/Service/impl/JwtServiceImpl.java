@@ -33,13 +33,14 @@ public class JwtServiceImpl implements JwtService
 
     @Override
     public String generateToken(User user) {
-        System.out.println("Inside generateToken method");
+        //System.out.println("Inside generateToken method");
         // Define expiration time (e.g., 10 minutes)
-        long expirationTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+        long expirationTime = 60 * 24 * 60 * 1000; // 10 minutes in milliseconds
         Date now = new Date();
+        //.setClock(() -> new Date(System.currentTimeMillis() - 5000)) // Allow 5 seconds skew
         Date expiryDate = new Date(now.getTime() + expirationTime);
 
-        System.out.println("Going to generate jwt token in generateToken method");
+        //System.out.println("Going to generate jwt token in generateToken method");
         String jwt= Jwts.builder()
                 .setSubject(user.getEmail())
                 .setIssuer("Haneef")
@@ -47,7 +48,7 @@ public class JwtServiceImpl implements JwtService
                 .setExpiration(expiryDate)
                 .signWith(generateKey(),SignatureAlgorithm.HS384)
                 .compact();
-        System.out.println("Generated jwt token in generateToken method="+ jwt);
+        //System.out.println("Generated jwt token in generateToken method="+ jwt);
         return jwt;
 //        return "";
     }
@@ -92,13 +93,13 @@ public class JwtServiceImpl implements JwtService
     }
 
     private Claims extractClaims(String jwtToken) {
-        System.out.println("Token before parsing: " + jwtToken);
+       // System.out.println("Token before parsing: " + jwtToken);
         Claims claims= Jwts.parserBuilder()
                 .setSigningKey(generateKey()) // Use the secret key to validate the token
                 .build()
                 .parseClaimsJws(jwtToken)
                 .getBody(); // Extract the claims from the token
-        System.out.println("Token parsed successfully!");
+        //System.out.println("Token parsed successfully!");
         return claims;
     }
 

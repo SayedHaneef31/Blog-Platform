@@ -227,9 +227,13 @@ class ApiService {
     return response.data;
   }
 
-  public async createTags(names: string[]): Promise<Tag[]> {
-    const response: AxiosResponse<Tag[]> = await this.api.post('/tags', { names });
-    return response.data;
+  public async createTag(name: string): Promise<Tag> {
+    try {
+      const response: AxiosResponse<Tag> = await this.api.post('/tags', { name });
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
   }
 
   public async deleteTag(id: string): Promise<void> {

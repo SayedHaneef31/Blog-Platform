@@ -11,8 +11,6 @@ import java.util.UUID;
 @Table(name="tags")
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class Tag
 {

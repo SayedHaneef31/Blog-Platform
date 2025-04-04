@@ -2,7 +2,6 @@ package com.Sayed.Blog.Backend.Entity;
 
 
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class User
     private String password;
 
     @Column(nullable = false)
-    private String name;
+    private String username;
 
 
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL,orphanRemoval = true)                       //one to many as in one user can write many post
@@ -40,16 +39,13 @@ public class User
     }
 
 
-    public User(LocalDateTime createdAt, String email, UUID id, String name, String password, List<Post> posts) {
-        this.createdAt = createdAt;
+    public User(String email, String password, String username) {
         this.email = email;
-        this.id = id;
-        this.name = name;
         this.password = password;
-        this.posts = posts;
+        this.username = username;
     }
-
     public User() {
+        this.username = "DefaultUser";
     }
 
     public LocalDateTime getCreatedAt() {
@@ -76,12 +72,12 @@ public class User
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = (username == null || username.isEmpty()) ? "DefaultUser" : username;
     }
 
     public String getPassword() {

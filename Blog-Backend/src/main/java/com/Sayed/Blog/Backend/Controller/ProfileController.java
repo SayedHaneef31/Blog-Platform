@@ -19,16 +19,16 @@ public class ProfileController {
     @GetMapping("/profile")
     public ResponseEntity<String> getUserProfile(HttpServletRequest request) {
         // Log that the request has reached the backend
-        System.out.println("Received request at /user/profile");
+        //System.out.println("Received request at /user/profile");
 
         // Log all request headers
         Enumeration<String> headerNames = request.getHeaderNames();
         if (headerNames != null) {
-            System.out.println("Request Headers:");
+            //System.out.println("Request Headers:");
             while (headerNames.hasMoreElements()) {
                 String headerName = headerNames.nextElement();
                 String headerValue = request.getHeader(headerName);
-                System.out.println("Header Name:"+headerName+" "+"Header Value:"+headerValue);
+                //System.out.println("Header Name:"+headerName+" "+"Header Value:"+headerValue);
 
             }
         }

@@ -1,8 +1,6 @@
 package com.Sayed.Blog.Backend.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.w3c.dom.Text;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -10,9 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Getter@Setter
-@NoArgsConstructor@AllArgsConstructor
-@Builder
 @Table(name = "posts")
 public class Post
 {
@@ -48,7 +43,7 @@ public class Post
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PostStatus postStatus;
+    private PostStatus status;
 
     @Column(nullable = false)
     private Integer readingTime;
@@ -74,17 +69,17 @@ public class Post
         updatedAt=LocalDateTime.now();
     }
 
-    public Post(User author, Category category, String content, LocalDateTime createdAt, UUID id, PostStatus postStatus, Integer readingTime, Set<Tag> tags, String title, LocalDateTime updatedAt) {
+    public Post(User author, Category category, String content, PostStatus status, Integer readingTime, Set<Tag> tags, String title) {
         this.author = author;
         this.category = category;
         this.content = content;
-        this.createdAt = createdAt;
-        this.id = id;
-        this.postStatus = postStatus;
+
+
+        this.status = status;
         this.readingTime = readingTime;
         this.tags = tags;
         this.title = title;
-        this.updatedAt = updatedAt;
+
     }
 
     public Post() {
@@ -130,12 +125,12 @@ public class Post
         this.id = id;
     }
 
-    public PostStatus getPostStatus() {
-        return postStatus;
+    public PostStatus getStatus() {
+        return status;
     }
 
-    public void setPostStatus(PostStatus postStatus) {
-        this.postStatus = postStatus;
+    public void setStatus(PostStatus status) {
+        this.status = status;
     }
 
     public Integer getReadingTime() {

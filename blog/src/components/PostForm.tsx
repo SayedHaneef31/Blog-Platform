@@ -337,7 +337,7 @@ const PostForm: React.FC<PostFormProps> = ({
               type="submit"
               isLoading={isSubmitting}
             >
-              {initialPost ? 'Update' : 'Create'} Post
+              {initialPost ? 'Update' : 'Create'} Post 
             </Button>
           </div>
         </CardBody>

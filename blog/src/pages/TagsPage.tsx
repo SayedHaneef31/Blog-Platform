@@ -17,11 +17,11 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Chip,
   Tooltip,
 } from "@nextui-org/react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, AlertCircle } from "lucide-react";
 import { apiService, Tag } from "../services/apiService";
+import toast, { Toaster } from 'react-hot-toast';
 
 interface TagsPageProps {
   isAuthenticated: boolean;
@@ -31,8 +31,7 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newTags, setNewTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
+  const [newTagName, setNewTagName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -53,18 +52,38 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
     }
   };
 
-  const handleAddTags = async () => {
-    if (newTags.length === 0) {
+  const handleAddTag = async () => {
+    if (!newTagName.trim()) {
       return;
     }
 
     try {
       setIsSubmitting(true);
-      await apiService.createTags(newTags);
+      await apiService.createTag(newTagName.trim());
       await fetchTags();
       handleModalClose();
-    } catch (err) {
-      setError("Failed to create tags. Please try again.");
+      toast.success('Tag created successfully!');
+    } catch (error: any) {
+      console.error('Error creating tag:', error.response?.data);
+      
+      if (error.response?.status === 409) {
+        toast.error("Tag name already exists!", {
+          duration: 4000, // 4 seconds
+          position: 'top-center',
+          style: {
+            background: '#FEE2E2',
+            color: '#DC2626',
+            padding: '16px',
+            borderRadius: '8px',
+            fontWeight: 'bold'
+          },
+          icon: '⚠️',
+        });
+        // Don't close modal - let user try a different name
+      } else {
+        setError("Failed to create tag. Please try again.");
+        handleModalClose();
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -81,6 +100,7 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
       setLoading(true);
       await apiService.deleteTag(tag.id);
       await fetchTags();
+      toast.success('Tag deleted successfully!');
     } catch (err) {
       setError("Failed to delete tag. Please try again.");
     } finally {
@@ -89,30 +109,13 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
   };
 
   const handleModalClose = () => {
-    setNewTags([]);
-    setTagInput("");
+    setNewTagName("");
     onClose();
-  };
-
-  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      const value = tagInput.trim().toLowerCase();
-      if (value && !newTags.includes(value)) {
-        setNewTags([...newTags, value]);
-        setTagInput("");
-      }
-    } else if (e.key === "Backspace" && !tagInput && newTags.length > 0) {
-      setNewTags(newTags.slice(0, -1));
-    }
-  };
-
-  const handleRemoveNewTag = (tagToRemove: string) => {
-    setNewTags(newTags.filter((tag) => tag !== tagToRemove));
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4">
+      <Toaster />
       <Card>
         <CardHeader className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Tags</h1>
@@ -122,7 +125,7 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
               startContent={<Plus size={16} />}
               onClick={onOpen}
             >
-              Add Tags
+              Add Tag
             </Button>
           )}
         </CardHeader>
@@ -169,9 +172,7 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
                           color="danger"
                           size="sm"
                           onClick={() => handleDelete(tag)}
-                          isDisabled={
-                            tag?.postCount ? tag.postCount > 0 : false
-                          }
+                          isDisabled={tag?.postCount ? tag.postCount > 0 : false}
                         >
                           <Trash2 size={16} />
                         </Button>
@@ -189,29 +190,20 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
 
       <Modal isOpen={isOpen} onClose={handleModalClose}>
         <ModalContent>
-          <ModalHeader>Add Tags</ModalHeader>
+          <ModalHeader>Add New Tag</ModalHeader>
           <ModalBody>
-            <div className="space-y-4">
-              <Input
-                label="Enter tags"
-                placeholder="Type and press Enter or comma to add tags"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagInputKeyDown}
-              />
-              <div className="flex flex-wrap gap-2">
-                {newTags.map((tag) => (
-                  <Chip
-                    key={tag}
-                    onClose={() => handleRemoveNewTag(tag)}
-                    variant="flat"
-                    endContent={<X size={14} />}
-                  >
-                    {tag}
-                  </Chip>
-                ))}
-              </div>
-            </div>
+            <Input
+              label="Tag Name"
+              placeholder="Enter tag name"
+              value={newTagName}
+              onChange={(e) => setNewTagName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddTag();
+                }
+              }}
+            />
           </ModalBody>
           <ModalFooter>
             <Button variant="flat" onClick={handleModalClose}>
@@ -219,11 +211,11 @@ const TagsPage: React.FC<TagsPageProps> = ({ isAuthenticated }) => {
             </Button>
             <Button
               color="primary"
-              onClick={handleAddTags}
+              onClick={handleAddTag}
               isLoading={isSubmitting}
-              isDisabled={newTags.length === 0}
+              isDisabled={!newTagName.trim()}
             >
-              Add Tags
+              Add Tag
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 @Repository
 public interface TagRepo extends JpaRepository<Tag, UUID> {
+
+    boolean existsByName(String namee);
 }

@@ -39,20 +39,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println("In doFilterInternal method");
+        //System.out.println("In doFilterInternal method");
         String authHeader=request.getHeader("Authorization");
         // Debugging - Check if the token is received
-        System.out.println("authHeader before parsing: " + authHeader);
+        //System.out.println("authHeader before parsing: " + authHeader);
 
         if(authHeader== null || !authHeader.startsWith("Bearer "))   //Agar phle se autheticated nahi hoga iska matlab abhi tak jwt token nahi generate hua hoga
         {
-            System.out.println("Token is null or does not start with 'Bearer '");
+            //System.out.println("Token is null or does not start with 'Bearer '");
             filterChain.doFilter(request,response);
             return;
         }
 
         String jwt=authHeader.substring(7);
-        System.out.println("Token after removing Bearer: " + jwt);
+        //System.out.println("Token after removing Bearer: " + jwt);
         final String username= jwtService.extractUserName(jwt);
 
         Authentication authentication= SecurityContextHolder.getContext().getAuthentication();   //Checks if a user is already authenticated in this request.
