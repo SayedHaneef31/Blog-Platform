@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -61,63 +62,58 @@ public class PostController {
         return ResponseEntity.ok(draftPosts);
     }
 
-
-    @PostMapping(path = "/new")
-    public ResponseEntity<Post> createPost(
+    @PostMapping
+    public ResponseEntity<?> createPost(
             @Valid @RequestBody CreatePostRequestDto createPostRequestDto,
             @RequestAttribute(required = false) UUID userId) {
 
-        System.out.println("Inside createpost method in controller");
-        System.out.println("User id="+userId);
-        User loggedInUser = userService.getUserById(userId);
-        System.out.println("Logged in user="+loggedInUser);
-        if (loggedInUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        try {
+            // Validate user
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "User not authenticated"));
+            }
+
+            User loggedInUser = userService.getUserById(userId);
+            if (loggedInUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
+            }
+
+            // Validate category
+            Category category = categoryService.getCategoryById(createPostRequestDto.getCategoryId());
+            if (category == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Invalid category ID"));
+            }
+
+            // Create post
+            Post post = new Post();
+            post.setTitle(createPostRequestDto.getTitle());
+            post.setContent(createPostRequestDto.getContent());
+            post.setStatus(createPostRequestDto.getPostStatus());
+            post.setReadingTime(calculateReadingTime(createPostRequestDto.getContent()));
+            post.setAuthor(loggedInUser);
+            post.setCategory(category);
+
+            // Set tags if provided
+            if (createPostRequestDto.getTagIds() != null && !createPostRequestDto.getTagIds().isEmpty()) {
+                Set<Tag> tags = tagService.getTagByIds(createPostRequestDto.getTagIds());
+                post.setTags(tags);
+            }
+
+            Post savedPost = postService.savePost(post);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedPost);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Failed to create post: " + e.getMessage()));
         }
-        // 2. Create a new Post entity
-        Post post = new Post();
-        post.setTitle(createPostRequestDto.getTitle());
-        post.setContent(createPostRequestDto.getContent());
-        post.setStatus(createPostRequestDto.getPostStatus());
-        post.setReadingTime(calculateReadingTime(createPostRequestDto.getContent())); // Auto-calculate reading time
-
-        post.setAuthor(loggedInUser);
-
-        Category category = categoryService.getCategoryById(createPostRequestDto.getCategoryId());
-        if (category == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        post.setCategory(category);
-
-        Set<Tag> tags = tagService.getTagByIds(createPostRequestDto.getTagIds());
-        post.setTags(tags);
-
-        Post savedPost = postService.savePost(post);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedPost);
-    }
-
-    private String getCurrentUserEmail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-            return ((UserDetails) authentication).getUsername(); // Make sure this returns the email
-        }
-        throw new RuntimeException("User not authenticated");
     }
 
     private Integer calculateReadingTime(String content) {
-        // Split the content into words
         String words[] = content.split("\\s+");
-
-        // Count the number of words
         int wordCount = words.length;
-
-        // Assuming average reading speed is 200 words per minute
-        int readingTime = (int) Math.ceil((double) wordCount / 200);
-
-        return readingTime;
-
-
+        return (int) Math.ceil((double) wordCount / 200);
     }
 }

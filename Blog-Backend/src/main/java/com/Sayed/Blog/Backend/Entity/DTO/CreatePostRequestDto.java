@@ -1,7 +1,7 @@
 package com.Sayed.Blog.Backend.Entity.DTO;
 
-
 import com.Sayed.Blog.Backend.Entity.PostStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,16 +14,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreatePostRequestDto {
 
     @NotBlank(message = "title is required")
-    @Size(min = 3,max = 25)
+    @Size(min = 3, max = 25)
     private String title;
 
     @NotBlank(message = "content is required")
-    @Size(min = 3,max = 100000)
+    @Size(min = 3, max = 100000)
     private String content;
 
     @NotNull(message = "category id is required")
@@ -31,9 +33,10 @@ public class CreatePostRequestDto {
 
     @Builder.Default
     @Size(max = 5)
-    private Set<UUID> tagIds =new HashSet<>();
+    private Set<UUID> tagIds = new HashSet<>();
 
     @NotNull(message = "Status is required")
+    @JsonProperty("status")  // This allows the frontend to send 'status' instead of 'postStatus'
     private PostStatus postStatus;
 
     public @NotNull(message = "category id is required") UUID getCategoryId() {
