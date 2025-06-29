@@ -91,10 +91,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const logout = () => {
+    console.log('Logging out user...');
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
-    setIsAuthenticated(false); // Ensure state is reset
+    setIsAuthenticated(false);
+    apiService.setToken(null); // Ensure API service is also updated
   };
 
   // Update apiService token when it changes
@@ -103,6 +105,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Update axios instance configuration
       const axiosInstance = apiService['api'];
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      // Clear authorization header when token is null
+      const axiosInstance = apiService['api'];
+      delete axiosInstance.defaults.headers.common['Authorization'];
     }
   }, [token]);
 

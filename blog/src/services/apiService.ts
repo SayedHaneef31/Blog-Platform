@@ -33,16 +33,12 @@ export interface Post {
   id: string;
   title: string;
   content: string;
-  author?: {
-    id: string;
-    name: string;
-  };
-  category: Category;
-  tags: Tag[];
-  readingTime?: number;
-  createdAt: string;
-  updatedAt: string;
-  status?: PostStatus;
+  status: string;
+  readingTime: number;
+  authorEmail: string;
+  categoryName: string;
+  tagNames: string[];
+
 }
 
 export interface CreatePostRequest {
@@ -88,8 +84,13 @@ class ApiService {
     this.api.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('token');
+        console.log('Request interceptor - URL:', config.url, 'Method:', config.method);
+        console.log('Request interceptor - Token exists:', !!token);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          console.log('Request interceptor - Authorization header set');
+        } else {
+          console.log('Request interceptor - No token found');
         }
         return config;
       },
@@ -102,9 +103,22 @@ class ApiService {
     this.api.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error: AxiosError) => {
+        console.error('API Error:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          url: error.config?.url,
+          method: error.config?.method,
+          data: error.response?.data
+        });
+        
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          window.location.href = '/login';
+          console.error('Authentication failed. Token might be invalid or expired.');
+          // Only logout if it's not a login request to avoid infinite loops
+          if (!error.config?.url?.includes('/auth/login')) {
+            localStorage.removeItem('token');
+            // Use React Router navigation instead of window.location
+            // window.location.href = '/login';
+          }
         }
         return Promise.reject(this.handleError(error));
       }
@@ -179,6 +193,8 @@ class ApiService {
   }
 
   public async createPost(post: CreatePostRequest): Promise<Post> {
+    console.log('Creating post with token:', localStorage.getItem('token') ? 'Token exists' : 'No token');
+    console.log('Request headers:', this.api.defaults.headers.common);
     const response: AxiosResponse<Post> = await this.api.post('/posts', post);
     return response.data;
   }
@@ -224,7 +240,7 @@ class ApiService {
   // Tags endpoints
   public async getTags(): Promise<Tag[]> {
     const response: AxiosResponse<Tag[]> = await this.api.get('/tags');
-    return response.data;
+    return Array.isArray(response.data) ? response.data : [];
   }
 
   public async createTag(name: string): Promise<Tag> {

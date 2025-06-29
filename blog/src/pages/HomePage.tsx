@@ -10,7 +10,7 @@ import { apiService, Post, Category, Tag } from '../services/apiService';
 import PostList from '../components/PostList';
 
 const HomePage: React.FC = () => {
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
         ]);
 
         setPosts(postsResponse);
-        setCategories(categoriesResponse);
+        setCategories(Array.isArray(categoriesResponse) ? categoriesResponse : []);
         setTags(tagsResponse);
         setError(null);
       } catch (err) {
@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
               }}
             >
               <Tab key="all" title="All Posts" />
-              {categories.map((category) => (
+              {Array.isArray(categories) && categories.map((category) => (
                 <Tab 
                   key={category.id} 
                   title={`${category.name} (${category.postCount})`}

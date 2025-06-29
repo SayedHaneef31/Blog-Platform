@@ -1,6 +1,7 @@
 package com.Sayed.Blog.Backend.Controller;
 
 import com.Sayed.Blog.Backend.Entity.Category;
+import com.Sayed.Blog.Backend.Entity.DTO.CategoryDto;
 import com.Sayed.Blog.Backend.Repository.CategoryRepo;
 import com.Sayed.Blog.Backend.Service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,18 @@ public class CategoryController {
 
 
     @GetMapping
-    public ResponseEntity<List<Category>> listAllCategories()
-    {
-        //List<Category> list=
-        return ResponseEntity.ok(categoryService.listCategories());
+    public ResponseEntity<List<CategoryDto>> listAllCategories() {
+        List<Category> categories = categoryService.listCategories();
+        List<CategoryDto> dtos = categories.stream().map(this::mapToDto).toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+    private CategoryDto mapToDto(Category category) {
+        CategoryDto dto = new CategoryDto();
+        dto.setId(category.getId());
+        dto.setName(category.getName());
+        dto.setPostCount(category.getPosts() != null ? category.getPosts().size() : 0);
+        return dto;
     }
 
 

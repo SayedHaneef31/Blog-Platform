@@ -1,6 +1,7 @@
 package com.Sayed.Blog.Backend.Controller;
 
 import com.Sayed.Blog.Backend.Entity.DTO.CreateTagDto;
+import com.Sayed.Blog.Backend.Entity.DTO.TagDto;
 import com.Sayed.Blog.Backend.Entity.Tag;
 import com.Sayed.Blog.Backend.Repository.TagRepo;
 import com.Sayed.Blog.Backend.Service.TagService;
@@ -30,9 +31,17 @@ public class TagController
     private TagService tagService;
 
     @GetMapping
-    public List<Tag> getAllTags()
-    {
-        return tagService.listTags();
+    public List<TagDto> getAllTags() {
+        List<Tag> tags = tagService.listTags();
+        return tags.stream().map(this::mapToDto).toList();
+    }
+
+    private TagDto mapToDto(Tag tag) {
+        TagDto dto = new TagDto();
+        dto.setId(tag.getId());
+        dto.setName(tag.getName());
+        dto.setPostCount(tag.getPosts() != null ? tag.getPosts().size() : 0);
+        return dto;
     }
 
     @PostMapping

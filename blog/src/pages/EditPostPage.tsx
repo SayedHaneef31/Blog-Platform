@@ -9,16 +9,27 @@ import {
 import { ArrowLeft } from 'lucide-react';
 import { apiService, Post, Category, Tag, PostStatus } from '../services/apiService';
 import PostForm from '../components/PostForm';
+import { useAuth } from '../components/AuthContext';
 
 const EditPostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated, token } = useAuth();
   const [post, setPost] = useState<Post | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Debug authentication status
+  useEffect(() => {
+    console.log('EditPostPage - Authentication status:', {
+      isAuthenticated,
+      hasToken: !!token,
+      tokenLength: token?.length
+    });
+  }, [isAuthenticated, token]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,8 +80,20 @@ const EditPostPage: React.FC = () => {
       }
 
       navigate('/');
-    } catch (err) {
-      setError('Failed to save the post. Please try again.');
+    } catch (err: any) {
+      console.error('Error saving post:', err);
+      
+      // Handle different types of errors
+      if (err.status === 401) {
+        setError('Authentication failed. Please log in again.');
+        // Don't automatically redirect, let user see the error
+      } else if (err.status === 403) {
+        setError('You do not have permission to perform this action.');
+      } else if (err.status === 400) {
+        setError(err.message || 'Invalid data provided. Please check your input.');
+      } else {
+        setError('Failed to save the post. Please try again.');
+      }
       setIsSubmitting(false);
     }
   };
@@ -80,6 +103,19 @@ const EditPostPage: React.FC = () => {
       navigate(`/posts/${id}`);
     } else {
       navigate('/');
+    }
+  };
+
+  // Debug function to test authentication
+  const testAuthentication = async () => {
+    try {
+      console.log('Testing authentication...');
+      const userProfile = await apiService.getUserProfile();
+      console.log('Authentication test successful:', userProfile);
+      setError('Authentication test successful!');
+    } catch (err: any) {
+      console.error('Authentication test failed:', err);
+      setError(`Authentication test failed: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -116,6 +152,14 @@ const EditPostPage: React.FC = () => {
               {id ? 'Edit Post' : 'Create New Post'}
             </h1>
           </div>
+          <Button
+            color="secondary"
+            variant="flat"
+            size="sm"
+            onClick={testAuthentication}
+          >
+            Test Auth
+          </Button>
         </CardHeader>
 
         <CardBody>

@@ -41,9 +41,10 @@ public class Post
     )
     private Set<Tag> tags=new HashSet<>();
 
-    @Column(nullable = false)
+    @Column(name = "post_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private PostStatus status;
+
 
     @Column(nullable = false)
     private Integer readingTime;
