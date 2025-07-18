@@ -33,12 +33,13 @@ export interface Post {
   id: string;
   title: string;
   content: string;
-  status: string;
-  readingTime: number;
-  authorEmail: string;
-  categoryName: string;
-  tagNames: string[];
-
+  author?: { id: string; name?: string; email?: string };
+  category?: { id: string; name: string };
+  tags?: Tag[];
+  readingTime?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  status?: string;
 }
 
 export interface CreatePostRequest {

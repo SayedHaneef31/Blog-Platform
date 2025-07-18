@@ -13,9 +13,12 @@ public interface PostService {
 
     List<Post> getAllPosts(UUID categoryId, UUID tagId);
 
-
+    Post getPostById(UUID postId);
 
     List<Post> getDraftPosts(User loggedInUser);
 
     ResponseEntity<?> createNewPost(CreatePostRequestDto createPostRequestDto);
+
+    Post updatePostById(UUID postId, CreatePostRequestDto postDto, User currentUser);
+
 }

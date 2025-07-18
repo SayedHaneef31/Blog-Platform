@@ -2,6 +2,7 @@ package com.Sayed.Blog.Backend.Controller;
 
 import com.Sayed.Blog.Backend.Entity.Category;
 import com.Sayed.Blog.Backend.Entity.DTO.CategoryDto;
+import com.Sayed.Blog.Backend.Entity.DTO.CreateCategoryDto;
 import com.Sayed.Blog.Backend.Repository.CategoryRepo;
 import com.Sayed.Blog.Backend.Service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -37,14 +38,16 @@ public class CategoryController {
     }
 
 
-    //CREATE CATEGORY
+
     @PostMapping
-    public ResponseEntity<?> createCategory(@RequestBody Category category)
-    {
+    public ResponseEntity<?> createCategory(@RequestBody CreateCategoryDto dto) {
         // TODO (if category already prent then it should show  a popup--- Handle it in frontend)
         try {
+            Category category = new Category();
+            category.setName(dto.getName());
             Category savedCategory = categoryService.saveCategory(category);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
+            CategoryDto responseDto = categoryService.toCategoryDto(savedCategory);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
         } catch (IllegalArgumentException e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
@@ -64,18 +67,17 @@ public class CategoryController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable UUID id,@RequestBody Category category)
-    {
+    public ResponseEntity<?> updateCategory(@PathVariable UUID id, @RequestBody CreateCategoryDto dto) {
         Optional<Category> optionalCategory = categoryRepo.findById(id);
 
         if (optionalCategory.isPresent()) {
             Category existingCategory = optionalCategory.get();
-            existingCategory.setName(category.getName());  // Directly set the name
-            categoryRepo.save(existingCategory);  // Save to DB
-            return ResponseEntity.ok(existingCategory);
+            existingCategory.setName(dto.getName());
+            Category updatedCategory = categoryRepo.save(existingCategory);
+            CategoryDto responseDto = categoryService.toCategoryDto(updatedCategory);
+            return ResponseEntity.ok(responseDto);
         } else {
             return ResponseEntity.notFound().build();
         }
-
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.security.access.AccessDeniedException;
 import java.util.*;
 
 @Service
@@ -79,6 +79,11 @@ public class PostServiceImpl implements PostService {
 
     }
 
+    @Override
+    public Post getPostById(UUID postId) {
+        return postRepo.findById(postId)
+                .orElseThrow(() -> new NoSuchElementException("Post not found with id: " + postId));
+    }
 
 
     @Override
@@ -137,4 +142,36 @@ public class PostServiceImpl implements PostService {
         int wordCount = words.length;
         return (int) Math.ceil((double) wordCount / 200);
     }
+
+    @Override
+    public Post updatePostById(UUID postId, CreatePostRequestDto dto, User currentUser) {
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new NoSuchElementException("Post not found"));
+
+        if (!post.getAuthor().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You are not authorized to update this post");
+        }
+
+        // Validate new category
+        Category category = categoryService.getCategoryById(dto.getCategoryId());
+        if (category == null) {
+            throw new IllegalArgumentException("Invalid category ID");
+        }
+
+        // Update fields
+        post.setTitle(dto.getTitle());
+        post.setContent(dto.getContent());
+        post.setStatus(dto.getPostStatus());
+        post.setCategory(category);
+        post.setReadingTime(calculateReadingTime(dto.getContent()));
+
+        // Optional: update tags if provided
+        if (dto.getTagIds() != null && !dto.getTagIds().isEmpty()) {
+            Set<Tag> tags = tagService.getTagByIds(dto.getTagIds());
+            post.setTags(tags);
+        }
+
+        return postRepo.save(post);
+    }
+
 }

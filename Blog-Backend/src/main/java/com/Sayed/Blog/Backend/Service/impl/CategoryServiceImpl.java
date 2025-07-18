@@ -4,6 +4,7 @@ import com.Sayed.Blog.Backend.Entity.Category;
 import com.Sayed.Blog.Backend.Entity.DTO.CategoryDto;
 import com.Sayed.Blog.Backend.Entity.DTO.PostDto;
 import com.Sayed.Blog.Backend.Entity.DTO.AuthorDto;
+import com.Sayed.Blog.Backend.Entity.DTO.TagDto;
 import com.Sayed.Blog.Backend.Entity.Post;
 import com.Sayed.Blog.Backend.Entity.User;
 import com.Sayed.Blog.Backend.Repository.CategoryRepo;
@@ -60,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id" + categoryId));
     }
 
-    private CategoryDto toCategoryDto(Category category) {
+    public CategoryDto toCategoryDto(Category category) {
         return new CategoryDto(
             category.getId(),
             category.getName(),
@@ -70,12 +71,24 @@ public class CategoryServiceImpl implements CategoryService {
 
     private PostDto toPostDto(Post post) {
         return new PostDto(
-            post.getId(),
-            post.getTitle(),
-            post.getContent(),
-            toAuthorDto(post.getAuthor()),
-            post.getCreatedAt(),
-            post.getUpdatedAt()
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                toAuthorDto(post.getAuthor()),
+                // Add category
+                post.getCategory() != null
+                        ? new CategoryDto(post.getCategory().getId(), post.getCategory().getName(), null)
+                        : null,
+                // Add tags
+                post.getTags() != null
+                        ? post.getTags().stream()
+                        .map(tag -> new TagDto(tag.getId(), tag.getName()))
+                        .collect(Collectors.toList())
+                        : null,
+                post.getReadingTime(),
+                post.getStatus() != null ? post.getStatus().name() : null,
+                post.getCreatedAt(),
+                post.getUpdatedAt()
         );
     }
 

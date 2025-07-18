@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link, useNavigate, useNavigation } from 'react-router-dom';
 import { Card, CardBody, CardFooter, CardHeader, Chip, Pagination, Select, SelectItem } from '@nextui-org/react';
-import { Post } from '../services/apiService';
-import { Calendar, Clock, Tag } from 'lucide-react';
+import { Post, Tag } from '../services/apiService';
+import { Calendar, Clock } from 'lucide-react';
+import { Tag as TagIcon } from 'lucide-react';
 import DOMPurify from 'dompurify';
 
 interface PostListProps {
@@ -151,11 +152,11 @@ const PostList: React.FC<PostListProps> = ({
                         {post.category.name}
                       </Chip>
                     ) : null}
-                    {(post.tags ?? []).map((tag) => (
+                    {(post.tags ?? []).map((tag: Tag) => (
                       <Chip
                         key={tag.id}
                         className="bg-default-100"
-                        startContent={<Tag size={14} />}
+                        startContent={<TagIcon size={14} />}
                       >
                         {tag.name}
                       </Chip>

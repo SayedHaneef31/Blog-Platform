@@ -2,8 +2,10 @@ package com.Sayed.Blog.Backend.Controller;
 
 import com.Sayed.Blog.Backend.Entity.*;
 import com.Sayed.Blog.Backend.Entity.DTO.CreatePostRequestDto;
-//import com.Sayed.Blog.Backend.Entity.DTO.PostDto;
-//mport com.Sayed.Blog.Backend.Entity.DTO.PostDto;
+import com.Sayed.Blog.Backend.Entity.DTO.PostDto;
+import com.Sayed.Blog.Backend.Entity.DTO.AuthorDto;
+import com.Sayed.Blog.Backend.Entity.DTO.CategoryDto;
+import com.Sayed.Blog.Backend.Entity.DTO.TagDto;
 import com.Sayed.Blog.Backend.Repository.UserRepo;
 import com.Sayed.Blog.Backend.Security.BlogUserDetails;
 import com.Sayed.Blog.Backend.Service.CategoryService;
@@ -18,11 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import org.springframework.security.access.AccessDeniedException;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -38,7 +37,7 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts(@RequestParam(required = false) UUID categoryId,
+    public ResponseEntity<List<PostDto>> getAllPosts(@RequestParam(required = false) UUID categoryId,
                                      @RequestParam(required = false) UUID tagId,
                                      @RequestParam(required = false, defaultValue = "false") boolean all)
     {
@@ -49,19 +48,30 @@ public class PostController {
         } else {
             posts = postService.getAllPosts(categoryId, tagId);
         }
-
-        return ResponseEntity.ok(posts);
+        List<PostDto> postDtos = posts.stream().map(this::toPostDto).toList();
+        return ResponseEntity.ok(postDtos);
 
     }
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<?> getPostById(@PathVariable UUID postId) {
+        try {
+            Post post = postService.getPostById(postId);
+            return ResponseEntity.ok(toPostDto(post));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
 
     @GetMapping(path = "/drafts")
-    public ResponseEntity<List<Post>> getDrafts(@RequestAttribute UUID userId) {
+    public ResponseEntity<List<PostDto>> getDrafts(@RequestAttribute UUID userId) {
         System.out.println("Inside getDrafts method in controller");
         System.out.println("User id="+userId);
         User loggedInUser = userService.getUserById(userId);
         List<Post> draftPosts = postService.getDraftPosts(loggedInUser);
-        return ResponseEntity.ok(draftPosts);
+        List<PostDto> draftDtos = draftPosts.stream().map(this::toPostDto).toList();
+        return ResponseEntity.ok(draftDtos);
     }
 
     @PostMapping
@@ -71,5 +81,75 @@ public class PostController {
        return postService.createNewPost(createPostRequestDto);
     }
 
+    @PutMapping("/{postId}")
+    public ResponseEntity<?> updatePost(
+            @PathVariable UUID postId,
+            @Valid @RequestBody CreatePostRequestDto postDto) {
+
+        try {
+            // 🔐 Get authenticated user
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "User not authenticated"));
+            }
+
+            BlogUserDetails userDetails = (BlogUserDetails) authentication.getPrincipal();
+            User loggedInUser = userDetails.getUser();
+
+            // 🔧 Call service
+            Post updatedPost = postService.updatePostById(postId, postDto, loggedInUser);
+
+            return ResponseEntity.ok(updatedPost);
+
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to update post: " + e.getMessage()));
+        }
+    }
+
+    // --- Mapping Methods ---
+    private PostDto toPostDto(Post post) {
+        AuthorDto authorDto = null;
+        if (post.getAuthor() != null) {
+            authorDto = new AuthorDto(
+                post.getAuthor().getId(),
+                post.getAuthor().getUsername(),
+                post.getAuthor().getEmail()
+            );
+        }
+        CategoryDto categoryDto = null;
+        if (post.getCategory() != null) {
+            categoryDto = new CategoryDto(
+                post.getCategory().getId(),
+                post.getCategory().getName(),
+                null // Avoid recursion
+            );
+        }
+        List<TagDto> tagDtos = null;
+        if (post.getTags() != null) {
+            tagDtos = post.getTags().stream()
+                .map(tag -> new TagDto(tag.getId(), tag.getName()))
+                .toList();
+        }
+        return new PostDto(
+            post.getId(),
+            post.getTitle(),
+            post.getContent(),
+            authorDto,
+            categoryDto,
+            tagDtos,
+            post.getReadingTime(),
+            post.getStatus() != null ? post.getStatus().toString() : null,
+            post.getCreatedAt(),
+            post.getUpdatedAt()
+        );
+    }
 
 }

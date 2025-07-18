@@ -16,4 +16,6 @@ public interface CategoryService {
     Category updateCategory(Category category);
 
     Category getCategoryById(UUID categoryId);
+
+    CategoryDto toCategoryDto(Category category);
 }
