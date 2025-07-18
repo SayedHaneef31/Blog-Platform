@@ -14,6 +14,10 @@ import com.Sayed.Blog.Backend.Service.TagService;
 import com.Sayed.Blog.Backend.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -64,15 +68,15 @@ public class PostController {
         }
     }
 
-    @GetMapping(path = "/drafts")
-    public ResponseEntity<List<PostDto>> getDrafts(@RequestAttribute UUID userId) {
-        System.out.println("Inside getDrafts method in controller");
-        System.out.println("User id="+userId);
-        User loggedInUser = userService.getUserById(userId);
-        List<Post> draftPosts = postService.getDraftPosts(loggedInUser);
-        List<PostDto> draftDtos = draftPosts.stream().map(this::toPostDto).toList();
-        return ResponseEntity.ok(draftDtos);
-    }
+//    @GetMapping(path = "/drafts")
+//    public ResponseEntity<List<PostDto>> getDrafts(@RequestAttribute UUID userId) {
+//        System.out.println("Inside getDrafts method in controller");
+//        System.out.println("User id="+userId);
+//        User loggedInUser = userService.getUserById(userId);
+//        List<Post> draftPosts = postService.getDraftPosts(loggedInUser);
+//        List<PostDto> draftDtos = draftPosts.stream().map(this::toPostDto).toList();
+//        return ResponseEntity.ok(draftDtos);
+//    }
 
     @PostMapping
     public ResponseEntity<?> createPost(
@@ -151,5 +155,39 @@ public class PostController {
             post.getUpdatedAt()
         );
     }
+
+    @GetMapping("/drafts")
+    public ResponseEntity<?> getUserDrafts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "updatedAt,desc") String[] sort) {
+
+        try {
+            // 🔐 Authenticated user
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "User not authenticated"));
+            }
+
+            BlogUserDetails userDetails = (BlogUserDetails) auth.getPrincipal();
+            User loggedInUser = userDetails.getUser();
+
+            // 🔃 Build Pageable from sort param
+            Sort sortObj = Sort.by(Sort.Order.desc("updatedAt")); // default
+            if (sort.length == 2) {
+                sortObj = Sort.by(Sort.Direction.fromString(sort[1]), sort[0]);
+            }
+            Pageable pageable = PageRequest.of(page, size, sortObj);
+
+            Page<Post> draftPosts = postService.getDraftPosts(loggedInUser, pageable);
+            return ResponseEntity.ok(draftPosts);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch drafts: " + e.getMessage()));
+        }
+    }
+
 
 }

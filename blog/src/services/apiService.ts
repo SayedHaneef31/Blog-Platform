@@ -69,6 +69,20 @@ export enum PostStatus {
   PUBLISHED = 'PUBLISHED'
 }
 
+export interface PaginatedResponse<T> {
+  content: T[];
+  pageable: any;
+  last: boolean;
+  totalPages: number;
+  totalElements: number;
+  numberOfElements: number;
+  first: boolean;
+  size: number;
+  number: number;
+  sort: any;
+  empty: boolean;
+}
+
 class ApiService {
   private api: AxiosInstance;
   private static instance: ApiService;
@@ -213,8 +227,8 @@ class ApiService {
     page?: number;
     size?: number;
     sort?: string;
-  }): Promise<Post[]> {
-    const response: AxiosResponse<Post[]> = await this.api.get('/posts/drafts', { params });
+  }): Promise<PaginatedResponse<Post>> {
+    const response: AxiosResponse<PaginatedResponse<Post>> = await this.api.get('/posts/drafts', { params });
     return response.data;
   }
 

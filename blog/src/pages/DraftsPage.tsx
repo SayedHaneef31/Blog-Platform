@@ -11,7 +11,7 @@ import { apiService, Post } from '../services/apiService';
 import PostList from '../components/PostList';
 
 const DraftsPage: React.FC = () => {
-  const [drafts, setDrafts] = useState<Post[] | null>(null);
+  const [drafts, setDrafts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -26,7 +26,7 @@ const DraftsPage: React.FC = () => {
           size: 10,
           sort: sortBy,
         });
-        setDrafts(response);
+        setDrafts(response.content || []);
         setError(null);
       } catch (err) {
         setError('Failed to load drafts. Please try again later.');
@@ -70,7 +70,7 @@ const DraftsPage: React.FC = () => {
             onSortChange={setSortBy}
           />
 
-          {drafts?.length === 0 && !loading && (
+          {drafts.length === 0 && !loading && (
             <div className="text-center py-8 text-default-500">
               <p>You don't have any draft posts yet.</p>
               <Button

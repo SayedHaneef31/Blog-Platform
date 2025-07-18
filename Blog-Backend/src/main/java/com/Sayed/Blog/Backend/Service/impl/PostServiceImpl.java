@@ -8,6 +8,8 @@ import com.Sayed.Blog.Backend.Service.CategoryService;
 import com.Sayed.Blog.Backend.Service.PostService;
 import com.Sayed.Blog.Backend.Service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -172,6 +174,11 @@ public class PostServiceImpl implements PostService {
         }
 
         return postRepo.save(post);
+    }
+
+    @Override
+    public Page<Post> getDraftPosts(User user, Pageable pageable) {
+        return postRepo.findAllByStatusAndAuthor(PostStatus.DRAFT, user, pageable);
     }
 
 }
