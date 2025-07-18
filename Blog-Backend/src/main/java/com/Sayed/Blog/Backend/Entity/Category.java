@@ -1,5 +1,6 @@
 package com.Sayed.Blog.Backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class Category {
     private String name;
 
     @OneToMany(mappedBy = "category")
+    @JsonManagedReference("post-category")
     private List<Post> posts=new ArrayList<>();
 
     public Category(UUID id, String name, List<Post> posts) {

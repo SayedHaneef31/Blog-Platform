@@ -1,6 +1,11 @@
 package com.Sayed.Blog.Backend.Service.impl;
 
 import com.Sayed.Blog.Backend.Entity.Category;
+import com.Sayed.Blog.Backend.Entity.DTO.CategoryDto;
+import com.Sayed.Blog.Backend.Entity.DTO.PostDto;
+import com.Sayed.Blog.Backend.Entity.DTO.AuthorDto;
+import com.Sayed.Blog.Backend.Entity.Post;
+import com.Sayed.Blog.Backend.Entity.User;
 import com.Sayed.Blog.Backend.Repository.CategoryRepo;
 import com.Sayed.Blog.Backend.Service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -20,9 +26,9 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-    public List<Category> listCategories() {
-        List<Category> list= categoryRepo.findAll();
-        return list;
+    public List<CategoryDto> listCategories() {
+        List<Category> list = categoryRepo.findAll();
+        return list.stream().map(this::toCategoryDto).collect(Collectors.toList());
     }
 
     @Override
@@ -54,5 +60,31 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id" + categoryId));
     }
 
+    private CategoryDto toCategoryDto(Category category) {
+        return new CategoryDto(
+            category.getId(),
+            category.getName(),
+            category.getPosts().stream().map(this::toPostDto).collect(Collectors.toList())
+        );
+    }
+
+    private PostDto toPostDto(Post post) {
+        return new PostDto(
+            post.getId(),
+            post.getTitle(),
+            post.getContent(),
+            toAuthorDto(post.getAuthor()),
+            post.getCreatedAt(),
+            post.getUpdatedAt()
+        );
+    }
+
+    private AuthorDto toAuthorDto(User user) {
+        return new AuthorDto(
+            user.getId(),
+            user.getUsername(),
+            user.getEmail()
+        );
+    }
 
 }

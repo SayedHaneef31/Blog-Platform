@@ -31,17 +31,9 @@ public class TagController
     private TagService tagService;
 
     @GetMapping
-    public List<TagDto> getAllTags() {
-        List<Tag> tags = tagService.listTags();
-        return tags.stream().map(this::mapToDto).toList();
-    }
-
-    private TagDto mapToDto(Tag tag) {
-        TagDto dto = new TagDto();
-        dto.setId(tag.getId());
-        dto.setName(tag.getName());
-        dto.setPostCount(tag.getPosts() != null ? tag.getPosts().size() : 0);
-        return dto;
+    public List<TagDto> getAllTags()
+    {
+        return tagService.listTags();
     }
 
     @PostMapping

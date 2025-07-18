@@ -24,7 +24,6 @@ const PostList: React.FC<PostListProps> = ({
   onPageChange,
   onSortChange,
 }) => {
-  console.log(posts);
  
   const navigate = useNavigate();
  
@@ -126,7 +125,7 @@ const PostList: React.FC<PostListProps> = ({
                       {post.title}
                     </h2>
                     <p className="text-small text-default-500">
-                      by {post.authorEmail || "No Author"}
+                      by {post.author?.name ?? "Unknown"}
                     </p>                
                     </div>
                 </CardHeader>
@@ -145,18 +144,20 @@ const PostList: React.FC<PostListProps> = ({
                     {post.readingTime} min read
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <Chip
-                      className="bg-primary-100 text-primary"
-                    >
-                      {post.categoryName || "No Category"}
-                    </Chip>
-                    {post.tagNames && post.tagNames.map((tagName, idx) => (
+                    {post.category ? (
                       <Chip
-                      key={idx}
-                      className="bg-default-100"
-                      startContent={<Tag size={14} />}
+                        className="bg-primary-100 text-primary"
                       >
-                        {tagName}
+                        {post.category.name}
+                      </Chip>
+                    ) : null}
+                    {(post.tags ?? []).map((tag) => (
+                      <Chip
+                        key={tag.id}
+                        className="bg-default-100"
+                        startContent={<Tag size={14} />}
+                      >
+                        {tag.name}
                       </Chip>
                     ))}
                   </div>

@@ -1,94 +1,43 @@
 package com.Sayed.Blog.Backend.Entity.DTO;
 
-import com.Sayed.Blog.Backend.Entity.Category;
-import com.Sayed.Blog.Backend.Entity.PostStatus;
-import com.Sayed.Blog.Backend.Entity.Tag;
-import com.Sayed.Blog.Backend.Entity.User;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class PostDto {
     private UUID id;
     private String title;
     private String content;
-    private String status;
-    private Integer readingTime;
-    private String authorEmail;
-    private String categoryName;
-    private Set<String> tagNames;
+    private AuthorDto author;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    // Add other fields as needed (e.g., status, readingTime)
 
-    public String getAuthorEmail() {
-        return authorEmail;
-    }
+    public PostDto() {}
 
-    public void setAuthorEmail(String authorEmail) {
-        this.authorEmail = authorEmail;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
+    public PostDto(UUID id, String title, String content, AuthorDto author, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
-    }
-
-    public Integer getReadingTime() {
-        return readingTime;
-    }
-
-    public void setReadingTime(Integer readingTime) {
-        this.readingTime = readingTime;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Set<String> getTagNames() {
-        return tagNames;
-    }
-
-    public void setTagNames(Set<String> tagNames) {
-        this.tagNames = tagNames;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
         this.title = title;
+        this.content = content;
+        this.author = author;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
+
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+
+    public AuthorDto getAuthor() { return author; }
+    public void setAuthor(AuthorDto author) { this.author = author; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

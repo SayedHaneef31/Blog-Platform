@@ -1,5 +1,6 @@
 package com.Sayed.Blog.Backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class Tag
     private String name;
 
     @ManyToMany(mappedBy = "tags")
+    @JsonBackReference("post-tag")
     private Set<Post> posts=new HashSet<>();
 
     public Tag(UUID id, String name, Set<Post> posts) {

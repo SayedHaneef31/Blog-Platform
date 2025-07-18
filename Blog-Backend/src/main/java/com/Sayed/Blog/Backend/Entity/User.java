@@ -1,6 +1,7 @@
 package com.Sayed.Blog.Backend.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class User
 
 
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL,orphanRemoval = true)                       //one to many as in one user can write many post
+    @JsonManagedReference
     private List<Post> posts=new ArrayList<>();
 
     private LocalDateTime createdAt;

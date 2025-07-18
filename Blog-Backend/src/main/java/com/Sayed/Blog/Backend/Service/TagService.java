@@ -1,5 +1,6 @@
 package com.Sayed.Blog.Backend.Service;
 
+import com.Sayed.Blog.Backend.Entity.DTO.TagDto;
 import com.Sayed.Blog.Backend.Entity.Tag;
 import org.springframework.http.ResponseEntity;
 
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public interface TagService
 {
-    List<Tag> listTags();
+    List<TagDto> listTags();
 
     Tag getTagById(UUID tagId);
 

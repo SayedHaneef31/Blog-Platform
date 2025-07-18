@@ -1,6 +1,11 @@
 package com.Sayed.Blog.Backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -26,11 +31,13 @@ public class Post
 
     @ManyToOne(fetch = FetchType.LAZY)      //many to one as in many post can be written by the single user
     @JoinColumn(name = "author_id", nullable = false)
+    @JsonBackReference
     private User author;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id",nullable = false)
+    @JsonBackReference("post-category")
     private Category category;
 
     @ManyToMany
@@ -39,12 +46,12 @@ public class Post
            joinColumns = @JoinColumn(name="post_id"),
            inverseJoinColumns = @JoinColumn(name="tag_id")
     )
+    @JsonManagedReference("post-tag")
     private Set<Tag> tags=new HashSet<>();
 
-    @Column(name = "post_status", nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'DRAFT'")
     @Enumerated(EnumType.STRING)
     private PostStatus status;
-
 
     @Column(nullable = false)
     private Integer readingTime;

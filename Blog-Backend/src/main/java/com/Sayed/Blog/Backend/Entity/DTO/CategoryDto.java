@@ -1,42 +1,27 @@
 package com.Sayed.Blog.Backend.Entity.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import java.util.List;
 import java.util.UUID;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class CategoryDto {
     private UUID id;
     private String name;
-    private int postCount;
+    private List<PostDto> posts;
 
-    public String getName() {
-        return name;
-    }
+    public CategoryDto() {}
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
+    public CategoryDto(UUID id, String name, List<PostDto> posts) {
         this.id = id;
+        this.name = name;
+        this.posts = posts;
     }
 
-    public int getPostCount() {
-        return postCount;
-    }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setPostCount(int postCount) {
-        this.postCount = postCount;
-    }
-}
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public List<PostDto> getPosts() { return posts; }
+    public void setPosts(List<PostDto> posts) { this.posts = posts; }
+} 

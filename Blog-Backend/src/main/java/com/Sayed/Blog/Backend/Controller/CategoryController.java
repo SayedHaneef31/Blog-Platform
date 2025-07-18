@@ -30,18 +30,10 @@ public class CategoryController {
 
 
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> listAllCategories() {
-        List<Category> categories = categoryService.listCategories();
-        List<CategoryDto> dtos = categories.stream().map(this::mapToDto).toList();
-        return ResponseEntity.ok(dtos);
-    }
-
-    private CategoryDto mapToDto(Category category) {
-        CategoryDto dto = new CategoryDto();
-        dto.setId(category.getId());
-        dto.setName(category.getName());
-        dto.setPostCount(category.getPosts() != null ? category.getPosts().size() : 0);
-        return dto;
+    public ResponseEntity<List<CategoryDto>> listAllCategories()
+    {
+        //List<Category> list=
+        return ResponseEntity.ok(categoryService.listCategories());
     }
 
 

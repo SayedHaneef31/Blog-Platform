@@ -1,12 +1,13 @@
 package com.Sayed.Blog.Backend.Service;
 
 import com.Sayed.Blog.Backend.Entity.Category;
+import com.Sayed.Blog.Backend.Entity.DTO.CategoryDto;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface CategoryService {
-    List<Category> listCategories();
+    List<CategoryDto> listCategories();
 
     Category saveCategory(Category category);
 

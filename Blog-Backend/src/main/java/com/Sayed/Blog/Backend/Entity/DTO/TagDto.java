@@ -5,29 +5,17 @@ import java.util.UUID;
 public class TagDto {
     private UUID id;
     private String name;
-    private int postCount;
 
-    public UUID getId() {
-        return id;
-    }
+    public TagDto() {}
 
-    public void setId(UUID id) {
+    public TagDto(UUID id, String name) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
         this.name = name;
     }
 
-    public int getPostCount() {
-        return postCount;
-    }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setPostCount(int postCount) {
-        this.postCount = postCount;
-    }
-}
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+} 

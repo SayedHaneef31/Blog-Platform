@@ -1,6 +1,7 @@
 package com.Sayed.Blog.Backend.Service.impl;
 
 import com.Sayed.Blog.Backend.Entity.Tag;
+import com.Sayed.Blog.Backend.Entity.DTO.TagDto;
 import com.Sayed.Blog.Backend.Repository.TagRepo;
 import com.Sayed.Blog.Backend.Service.TagService;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,8 +22,8 @@ public class TagServiceImpl implements TagService {
     private TagRepo tagRepo;
 
     @Override
-    public List<Tag> listTags() {
-        return tagRepo.findAll();
+    public List<TagDto> listTags() {
+        return tagRepo.findAll().stream().map(this::toTagDto).collect(java.util.stream.Collectors.toList());
     }
 
     @Override
@@ -50,5 +51,9 @@ public class TagServiceImpl implements TagService {
             throw new EntityNotFoundException("Tag not found with ID " + tagId);
         }
         tagRepo.deleteById(tagId);
+    }
+
+    private TagDto toTagDto(Tag tag) {
+        return new TagDto(tag.getId(), tag.getName());
     }
 }
